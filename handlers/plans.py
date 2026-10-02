@@ -1859,6 +1859,9 @@ async def renew_cancel(callback:types.CallbackQuery,state:FSMContext):
 
 @router.callback_query(F.data.startswith("renew_"))
 async def renew_start(callback: types.CallbackQuery, state: FSMContext):
+    # سازگاری با callbackهای قدیمی renew_<config_id>. مسیر اصلی فعلی تمدید
+    # از renewcfg_<config_id> و تنظیمات دسته/پلن استفاده می‌کند.
+
     if not db.is_orders_enabled():
         await callback.answer(ORDERS_CLOSED_TEXT, show_alert=True)
         return
