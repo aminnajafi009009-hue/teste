@@ -307,6 +307,9 @@ def run_flask():
 # ---------------------------------------------------------------------------
 async def run_bot():
     db.init_db()
+    # 🐛 HybridFSMStorage باید قبل از warm_up ساخته شود؛ در غیر این صورت
+    # به‌خاطر assignment داخل همین تابع، پایتون آن را local تشخیص می‌دهد.
+    _hybrid_storage = fsm_hybrid.HybridFSMStorage()
     # 🔥 FSM warm-up + Cache warm-up (async)
     await _hybrid_storage.warm_up()
     _hybrid_storage.start_flush_task()
@@ -318,7 +321,6 @@ async def run_bot():
 
     bot = Bot(token=TOKEN)
     # 🐛 فیکس: قبلاً MemoryStorage (فقط RAM) بود، با هر ری‌استارت state گم می‌شد.
-    _hybrid_storage = fsm_hybrid.HybridFSMStorage()
     dp = Dispatcher(storage=_hybrid_storage)
     dp.errors.register(global_error_handler)
     blocked_middleware = BlockedUserMiddleware()
