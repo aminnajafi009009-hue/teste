@@ -771,6 +771,14 @@ def admin_renewal_plan_menu(category_id:int,plan_key:str): return _renewal_edit_
 def admin_renewal_mode_menu(category_id:int,plan_key:str|None=None):
     target=f"plan_{plan_key}" if plan_key else f"cat_{int(category_id)}"
     return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⏳ فقط زمان",callback_data=f"renewsetmodeval_day_{target}",style="primary")],[InlineKeyboardButton(text="📦 فقط حجم",callback_data=f"renewsetmodeval_gb_{target}",style="primary")],[InlineKeyboardButton(text="📦⏳ حجم و زمان",callback_data=f"renewsetmodeval_both_{target}",style="primary")],[InlineKeyboardButton(text="🔙 بازگشت",callback_data=(f"renewsetscope_{category_id}" if plan_key else f"renewsetscope_all_{category_id}"),style="danger")]])
+
+def renew_mode_keyboard():
+    """منوی انتخاب حالت تمدید برای مسیر قدیمی custom-build.
+
+    این callbackها با renew_mode_start در handlers/plans.py هماهنگ هستند.
+    مسیر جدید renewcfg_* نوع تمدید را مستقیماً از تنظیمات دسته/پلن می‌گیرد
+    و این کیبورد فقط برای سازگاری با callbackهای renew_* قدیمی نگه داشته شده است.
+    """
     return InlineKeyboardMarkup(ui_screen="renew_menu", inline_keyboard=[
         [InlineKeyboardButton(text="⏳ تمدید زمان", callback_data="renewmode_time", style="success")],
         [InlineKeyboardButton(text="🗜 تمدید حجم", callback_data="renewmode_volume", style="success")],
