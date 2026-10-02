@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>Admin Panel</title>
+<style>
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --bg3:#1a1a28;
+  --card:#16162a;
+  --card2:#1e1e35;
+  --accent:#c8a04a;
+  --accent2:#e8c066;
+  --blue:#3a7bd5;
+  --blue2:#5a9bf5;
+  --green:#22c55e;
+  --red:#ef4444;
+  --purple:#8b5cf6;
+  --pink:#ec4899;
+  --text:#f0f0ff;
+  --text2:#a0a0c0;
+  --text3:#606080;
+  --border:#2a2a45;
+  --glow:rgba(200,160,74,0.15);
+  --glow-blue:rgba(58,123,213,0.2);
+  --radius:14px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,system-ui,sans-serif;font-size:14px;overflow-x:hidden}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* HEADER */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,15,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 16px;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;font-size:18px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2),var(--blue2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent),var(--blue));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 15px var(--glow);
+}
+.header-right{display:flex;align-items:center;gap:10px}
+.badge-online{
+  background:var(--green);width:8px;height:8px;border-radius:50%;
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header-time{color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums}
+
+/* NAV */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,15,.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px;cursor:pointer;border-radius:var(--radius-sm);
+  color:var(--text3);font-size:10px;transition:all .2s;
+  position:relative;
+}
+.nav-item.active{color:var(--accent)}
+.nav-icon{font-size:20px;transition:transform .2s}
+.nav-item.active .nav-icon{transform:scale(1.15)}
+.nav-badge{
+  position:absolute;top:4px;right:20%;background:var(--red);
+  color:#fff;font-size:9px;font-weight:700;padding:1px 5px;
+  border-radius:10px;min-width:16px;text-align:center;
+}
+
+/* MAIN */
+.main{
+  padding-top:72px;
+  padding-bottom:calc(70px + env(safe-area-inset-bottom));
+  min-height:100%;
+}
+.page{display:none;padding:0 12px 12px;animation:fadeUp .25s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION */
+.section-title{
+  font-size:12px;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;
+  margin:20px 0 10px;padding-right:4px;
+}
+
+/* STATS GRID */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+  margin-bottom:4px;
+}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 12px;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:transform .15s,border-color .15s;
+}
+.stat-card:active{transform:scale(.97)}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:60px;height:60px;border-radius:0 var(--radius) 0 100%;
+  opacity:.08;
+}
+.stat-card.gold::before{background:var(--accent)}
+.stat-card.blue::before{background:var(--blue2)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-card.pink::before{background:var(--pink)}
+.stat-card.red::before{background:var(--red)}
+.stat-icon{font-size:24px;margin-bottom:8px}
+.stat-value{
+  font-size:24px;font-weight:700;line-height:1;
+  background:linear-gradient(135deg,var(--text),var(--text2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+.stat-delta{font-size:10px;color:var(--green);margin-top:2px}
+
+/* CARD */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  margin-bottom:10px;transition:border-color .2s;
+}
+.card:active{border-color:var(--accent)}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.card-title{font-weight:600;font-size:14px}
+.card-subtitle{font-size:11px;color:var(--text3)}
+
+/* PILL */
+.pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+}
+.pill.green{background:rgba(34,197,94,.15);color:var(--green)}
+.pill.red{background:rgba(239,68,68,.15);color:var(--red)}
+.pill.blue{background:rgba(90,155,245,.15);color:var(--blue2)}
+.pill.gold{background:rgba(200,160,74,.15);color:var(--accent2)}
+.pill.purple{background:rgba(139,92,246,.15);color:var(--purple)}
+
+/* TOGGLE */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:13px;color:var(--text)}
+.toggle-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.toggle{
+  position:relative;width:44px;height:24px;flex-shrink:0;
+}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:var(--bg3);
+  border-radius:24px;cursor:pointer;
+  border:1px solid var(--border);transition:background .2s;
+}
+.toggle-slider::after{
+  content:'';position:absolute;
+  left:3px;top:3px;
+  width:16px;height:16px;
+  background:#fff;border-radius:50%;
+  transition:transform .2s;opacity:.4;
+}
+input:checked + .toggle-slider{background:var(--accent);border-color:var(--accent)}
+input:checked + .toggle-slider::after{transform:translateX(20px);opacity:1}
+
+/* BUTTON */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 16px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;cursor:pointer;
+  border:none;transition:all .15s;width:100%;text-align:center;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;box-shadow:0 4px 15px var(--glow);
+}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-success{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+
+/* INPUT */
+.input-group{margin-bottom:12px}
+.input-label{font-size:11px;color:var(--text2);margin-bottom:6px;display:block}
+.input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  color:var(--text);font-size:13px;outline:none;
+  transition:border-color .2s;
+}
+.input:focus{border-color:var(--accent)}
+.input::placeholder{color:var(--text3)}
+
+/* LIST ITEM */
+.list-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  cursor:pointer;transition:opacity .15s;
+}
+.list-item:last-child{border-bottom:none}
+.list-item:active{opacity:.7}
+.list-avatar{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.list-body{flex:1;min-width:0}
+.list-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.list-action{color:var(--text3);font-size:18px;flex-shrink:0}
+
+/* PROGRESS */
+.progress-bar{
+  height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .5s ease;
+}
+
+/* CHART PLACEHOLDER */
+.chart-area{
+  height:140px;background:var(--bg3);border-radius:var(--radius-sm);
+  display:flex;align-items:flex-end;gap:4px;padding:16px 12px 8px;
+  overflow:hidden;
+}
+.chart-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  background:linear-gradient(180deg,var(--accent2),var(--blue));
+  opacity:.7;transition:height .6s ease;
+  min-height:4px;
+}
+.chart-bar.active{opacity:1;background:linear-gradient(180deg,var(--accent2),var(--accent))}
+
+/* PAYMENT METHOD */
+.pm-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  margin-bottom:10px;
+}
+.pm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pm-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.pm-title{font-weight:600;font-size:14px}
+.pm-meta{font-size:11px;color:var(--text3)}
+
+/* CRYPTO LIST */
+.crypto-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.crypto-item:last-child{border-bottom:none}
+.crypto-emoji{font-size:24px;width:36px;text-align:center}
+.crypto-body{flex:1}
+.crypto-name{font-size:13px;font-weight:500}
+.crypto-network{font-size:11px;color:var(--text3)}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{
+  background:var(--card);border-radius:var(--radius) var(--radius) 0 0;
+  padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+  width:100%;max-width:500px;max-height:85vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-handle{
+  width:40px;height:4px;background:var(--border);
+  border-radius:2px;margin:0 auto 16px;
+}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;text-align:center}
+
+/* ALERT */
+.alert{
+  padding:10px 14px;border-radius:var(--radius-sm);
+  font-size:12px;margin-bottom:10px;
+  display:flex;align-items:flex-start;gap:8px;
+}
+.alert.info{background:rgba(58,123,213,.1);border:1px solid rgba(58,123,213,.3);color:var(--blue2)}
+.alert.warn{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);color:#eab308}
+.alert.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.alert.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+
+/* SHIMMER */
+.shimmer{
+  background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);
+  background-size:200% 100%;animation:shimmer 1.2s infinite;
+  border-radius:var(--radius-sm);
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(22,22,42,.97);border:1px solid var(--border);
+  color:var(--text);padding:10px 20px;border-radius:30px;
+  font-size:13px;z-index:300;opacity:0;pointer-events:none;
+  transition:all .3s;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* RESELLER */
+.reseller-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;margin-bottom:10px;
+  position:relative;overflow:hidden;
+}
+.reseller-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,92,246,.04),rgba(58,123,213,.04));
+}
+
+/* FLOATING ACTION */
+.fab{
+  position:fixed;left:20px;bottom:calc(78px + env(safe-area-inset-bottom));
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;z-index:99;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  transition:transform .2s;
+}
+.fab:active{transform:scale(.9)}
+
+/* USER CARD */
+.user-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:border-color .15s;
+}
+.user-card:active{border-color:var(--accent)}
+.user-ava{
+  width:44px;height:44px;border-radius:13px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.user-badge{display:flex;gap:4px;margin-top:4px}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap .input{padding-right:36px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    Admin Panel
+  </div>
+  <div class="header-right">
+    <div class="badge-online"></div>
+    <div class="header-time" id="htime"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ========== DASHBOARD ========== -->
+<div class="page active" id="page-dash">
+  <div class="section-title">📊 آمار کلی</div>
+  <div class="stats-grid">
+    <div class="stat-card gold" onclick="navTo('users')">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value" id="s-users">-</div>
+      <div class="stat-label">کاربران</div>
+      <div class="stat-delta" id="s-users-d"></div>
+    </div>
+    <div class="stat-card blue" onclick="navTo('orders')">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value" id="s-orders">-</div>
+      <div class="stat-label">سفارش‌ها</div>
+      <div class="stat-delta" id="s-orders-d"></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value" id="s-rev">-</div>
+      <div class="stat-label">درآمد امروز</div>
+      <div class="stat-delta">تومان</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" id="s-active">-</div>
+      <div class="stat-label">سرویس فعال</div>
+      <div class="stat-delta" id="s-pending"></div>
+    </div>
+  </div>
+
+  <div class="section-title">📈 نمودار هفته</div>
+  <div class="card">
+    <div class="chart-area" id="weekly-chart"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;padding:0 4px">
+      <span style="font-size:10px;color:var(--text3)">۶ روز پیش</span>
+      <span style="font-size:10px;color:var(--text3)">امروز</span>
+    </div>
+  </div>
+
+  <div class="section-title">⚡ دسترسی سریع</div>
+  <div class="stats-grid">
+    <button class="btn btn-primary" onclick="sendBroadcast()">📣 همگانی</button>
+    <button class="btn btn-blue" onclick="navTo('payments')">💳 پرداخت</button>
+    <button class="btn btn-secondary" onclick="navTo('panels')">🌐 پنل‌ها</button>
+    <button class="btn btn-secondary" onclick="navTo('settings')">⚙️ تنظیمات</button>
+  </div>
+
+  <div class="section-title">🔔 سفارش‌های در انتظار</div>
+  <div class="card" id="pending-orders-card">
+    <div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">در حال بارگزاری...</div>
+  </div>
+
+  <div class="section-title">👥 جدیدترین کاربران</div>
+  <div class="card" id="recent-users-card">
+    <div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">در حال بارگزاری...</div>
+  </div>
+</div>
+
+<!-- ========== PAYMENTS ========== -->
+<div class="page" id="page-payments">
+  <div class="section-title">💳 روش‌های پرداخت</div>
+
+  <!-- کارت‌به‌کارت -->
+  <div class="pm-card">
+    <div class="pm-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pm-icon" style="background:rgba(200,160,74,.1)">💳</div>
+        <div>
+          <div class="pm-title">کارت‌به‌کارت دستی</div>
+          <div class="pm-meta" id="pm-card-meta">شماره تنظیم نشده</div>
+        </div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="pm-card-toggle" onchange="togglePM('card',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">شماره کارت</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('card_number','💳 شماره کارت')">ویرایش</button>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">صاحب کارت</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('card_owner','👤 نام صاحب')">ویرایش</button>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">رسید اجباری</div></div>
+      <label class="toggle"><input type="checkbox" id="pm-receipt" onchange="updateSetting('pm_receipt_required',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">تأیید خودکار</div></div>
+      <label class="toggle"><input type="checkbox" id="pm-auto-confirm" onchange="updateSetting('pm_auto_confirm',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+  </div>
+
+  <!-- کیف پول -->
+  <div class="pm-card">
+    <div class="pm-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pm-icon" style="background:rgba(34,197,94,.1)">💰</div>
+        <div><div class="pm-title">کیف پول</div><div class="pm-meta">شارج و پرداخت از موجودی</div></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="pm-wallet-toggle" onchange="togglePM('wallet',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">حداقل شارج</div><div class="toggle-sub" id="pm-wallet-min">10,000 تومان</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('wallet_min_charge','⤵️ حداقل شارج')">ویرایش</button>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">هدیه شارج</div><div class="toggle-sub">درصد هدیه برای شارج بیشتر</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('wallet_gift_percent','🎁 درصد هدیه')">ویرایش</button>
+    </div>
+  </div>
+
+  <!-- UniquePay -->
+  <div class="pm-card">
+    <div class="pm-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pm-icon" style="background:rgba(58,123,213,.1)">🌐</div>
+        <div><div class="pm-title">UniquePay</div><div class="pm-meta">gateway کارت‌به‌کارت آنلاین</div></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="pm-up-toggle" onchange="togglePM('uniquepay',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="alert info" style="margin:0 0 10px">
+      💡 پس از افزودن Business Token، یک فاکتور تست ساخته و اتصال سنجی می‌شود.
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Business Token</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('up_token','🔑 Business Token')">ویرایش</button>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Redirect URL</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('up_redirect','🔗 Redirect URL')">ویرایش</button>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">لینک تلگرام</div><div class="toggle-sub">به جای لینک وب</div></div>
+      <label class="toggle"><input type="checkbox" id="up-tglink" onchange="updateSetting('up_use_tglink',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">نمایش کارت (White Label)</div></div>
+      <label class="toggle"><input type="checkbox" id="up-wl" onchange="updateSetting('up_show_card',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">تأیید خودکار</div></div>
+      <label class="toggle"><input type="checkbox" id="up-auto" onchange="updateSetting('up_auto_confirm',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <button class="btn btn-success" style="margin-top:10px" onclick="testUniquePay()">🧪 تست اتصال</button>
+  </div>
+
+  <!-- ارز دیجیتال -->
+  <div class="pm-card">
+    <div class="pm-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pm-icon" style="background:rgba(139,92,246,.1)">📊</div>
+        <div><div class="pm-title">ارز دیجیتال</div><div class="pm-meta" id="crypto-meta">0 ارز فعال</div></div>
+      </div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="openAddCrypto()">➕ افزودن</button>
+    </div>
+    <div id="crypto-list"></div>
+  </div>
+
+  <!-- Pay As You Go -->
+  <div class="pm-card">
+    <div class="pm-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="pm-icon" style="background:rgba(236,72,153,.1)">🔄</div>
+        <div><div class="pm-title">Pay As You Go</div><div class="pm-meta">پرداخت به ازای مصرف</div></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="pm-paygo-toggle" onchange="togglePM('paygo',this.checked)"><div class="toggle-slider"></div></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">قیمت هر GB</div><div class="toggle-sub" id="paygo-gb">5,000 تومان</div></div>
+      <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('paygo_per_gb','💰 تومان / GB')">ویرایش</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== USERS ========== -->
+<div class="page" id="page-users">
+  <div class="search-wrap">
+    <input class="input" placeholder="جستجو کاربر..." id="user-search" oninput="searchUsers(this.value)" />
+    <span class="search-icon">🔍</span>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px">
+    <button class="btn btn-primary" style="width:auto;padding:6px 14px;font-size:11px;white-space:nowrap" onclick="filterUsers('all')">همه</button>
+    <button class="btn btn-secondary" style="width:auto;padding:6px 14px;font-size:11px;white-space:nowrap" onclick="filterUsers('vip')">⭐ VIP</button>
+    <button class="btn btn-secondary" style="width:auto;padding:6px 14px;font-size:11px;white-space:nowrap" onclick="filterUsers('active')">✅ فعال</button>
+    <button class="btn btn-secondary" style="width:auto;padding:6px 14px;font-size:11px;white-space:nowrap" onclick="filterUsers('blocked')">🔴 بلاک</button>
+  </div>
+  <div id="users-list"><div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">در حال بارگزاری...</div></div>
+</div>
+
+<!-- ========== PANELS ========== -->
+<div class="page" id="page-panels">
+  <div class="section-title">🌐 پنل‌های متصل</div>
+  <div id="panels-list"><div class="shimmer" style="height:80px;margin-bottom:10px"></div></div>
+  <button class="btn btn-primary" onclick="openAddPanel()" style="margin-top:4px">➕ افزودن پنل جدید</button>
+  <div class="section-title">🧩 نوع پنل</div>
+  <div class="card">
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">💊</div><div class="list-body"><div class="list-title">Hiddify v2</div><div class="list-meta">بهترین پنل ایرانی</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#e91e63,#9c27b0)">🐟</div><div class="list-body"><div class="list-title">Marzban</div><div class="list-meta">محبوب و پایدار</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#ff5722,#f44336)">🔥</div><div class="list-body"><div class="list-title">Marzneshin</div><div class="list-meta">نسل جدید Marzban</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#4caf50,#2e7d32)">⚪</div><div class="list-body"><div class="list-title">Outline</div><div class="list-meta">ساده و سریع</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#673ab7,#3f51b5)">3⃣</div><div class="list-body"><div class="list-title">3X-UI / X-UI</div><div class="list-meta">محبوبترین اینترنشنال</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#009688,#00796b)">🔒</div><div class="list-body"><div class="list-title">WireGuard Dashboard</div><div class="list-meta">وایرگارد حرفه‌ای</div></div></div>
+    <div class="list-item"><div class="list-avatar" style="background:linear-gradient(135deg,#00bcd4,#006064)">🌀</div><div class="list-body"><div class="list-title">wg-easy</div><div class="list-meta">وایرگارد ساده</div></div></div>
+  </div>
+</div>
+
+<!-- ========== SETTINGS ========== -->
+<div class="page" id="page-settings">
+  <div class="section-title">🤖 عمومی ربات</div>
+  <div class="card">
+    <div class="toggle-row"><div><div class="toggle-label">حالت تعمیر</div><div class="toggle-sub">ربات برای کاربران غیرفعال</div></div><label class="toggle"><input type="checkbox" id="s-maintenance" onchange="updateSetting('maintenance_mode',this.checked)"><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">ثبت‌نام جدید</div></div><label class="toggle"><input type="checkbox" id="s-reg" onchange="updateSetting('registration_open',this.checked)"><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">سیستم معرفی</div></div><label class="toggle"><input type="checkbox" id="s-ref" onchange="updateSetting('referral_enabled',this.checked)"><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">تأیید خودکار سفارش</div></div><label class="toggle"><input type="checkbox" id="s-auto" onchange="updateSetting('auto_accept_orders',this.checked)"><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">اجبار عضویت کانال</div></div><label class="toggle"><input type="checkbox" id="s-force" onchange="updateSetting('force_join_enabled',this.checked)"><div class="toggle-slider"></div></label></div>
+  </div>
+
+  <div class="section-title">🎁 سرویس تست</div>
+  <div class="card">
+    <div class="toggle-row"><div><div class="toggle-label">سرویس تست</div></div><label class="toggle"><input type="checkbox" id="s-test" onchange="updateSetting('test_service_enabled',this.checked)"><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">حداکثر هر کاربر</div><div class="toggle-sub" id="s-test-max">1 تست</div></div><button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px" onclick="editField('test_max_per_user','🔢 حداکثر')">ویرایش</button></div>
+  </div>
+
+  <div class="section-title">💬 متن‌ها</div>
+  <div class="card">
+    <div class="list-item" onclick="editField('welcome_message','👋 متن خوشآمدگویی')"><div class="list-body"><div class="list-title">خوشآمدگویی</div></div><div class="list-action">➡️</div></div>
+    <div class="list-item" onclick="editField('guide_text','ℹ️ راهنما')"><div class="list-body"><div class="list-title">راهنما</div></div><div class="list-action">➡️</div></div>
+    <div class="list-item" onclick="editField('payment_text','💳 متن پرداخت')"><div class="list-body"><div class="list-title">متن پرداخت</div></div><div class="list-action">➡️</div></div>
+    <div class="list-item" onclick="editField('expire_text','❌ انقضا')"><div class="list-body"><div class="list-title">متن انقضا</div></div><div class="list-action">➡️</div></div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active" onclick="navTo('dash')" id="nav-dash">
+    <div class="nav-icon">🏠</div><div>داشبورد</div>
+  </div>
+  <div class="nav-item" onclick="navTo('users')" id="nav-users">
+    <div class="nav-icon">👥</div><div>کاربران</div>
+  </div>
+  <div class="nav-item" onclick="navTo('payments')" id="nav-payments">
+    <div class="nav-icon">💳</div><div>پرداخت</div>
+  </div>
+  <div class="nav-item" onclick="navTo('panels')" id="nav-panels">
+    <div class="nav-icon">🌐</div><div>پنل‌ها</div>
+  </div>
+  <div class="nav-item" onclick="navTo('settings')" id="nav-settings">
+    <div class="nav-icon">⚙️</div><div>تنظیمات</div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-field" onclick="closeModal('modal-field')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-field-title">ویرایش</div>
+    <div class="input-group">
+      <label class="input-label" id="modal-field-label">مقدار جدید</label>
+      <textarea class="input" id="modal-field-input" rows="4" style="resize:none"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="saveField()">ذخیره ✓</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-crypto" onclick="closeModal('modal-crypto')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ اضافه ارز دیجیتال</div>
+    <div class="input-group"><label class="input-label">سیمبول (USDT, BTC...)</label><input class="input" id="nc-symbol" placeholder="USDT"></div>
+    <div class="input-group"><label class="input-label">نام کامل</label><input class="input" id="nc-name" placeholder="Tether"></div>
+    <div class="input-group"><label class="input-label">شبکه</label><input class="input" id="nc-network" placeholder="TRC20"></div>
+    <div class="input-group"><label class="input-label">ایموجی</label><input class="input" id="nc-emoji" placeholder="🟢"></div>
+    <div class="input-group"><label class="input-label">آدرس کیف پول (اختیاری)</label><input class="input" id="nc-wallet" placeholder="T..."></div>
+    <button class="btn btn-primary" onclick="addCrypto()">➕ افزودن</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FAB -->
+<div class="fab" onclick="sendBroadcast()" title="پیام همگانی">📣</div>
+
+<script>
+const API = '/admin/api';
+let currentPage = 'dash';
+let _editKey = '';
+let cryptos = [];
+
+// TIME
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('htime').textContent =
+    n.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+},1000);
+
+// NAV
+function navTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page)?.classList.add('active');
+  document.getElementById('nav-' + page)?.classList.add('active');
+  currentPage = page;
+  if (page === 'dash') loadDash();
+  if (page === 'users') loadUsers();
+  if (page === 'panels') loadPanels();
+  if (page === 'payments') loadPayments();
+  if (page === 'settings') loadSettings();
+}
+
+// TOAST
+function toast(msg, dur = 2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// MODAL
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove('show');
+}
+function openModal(id) {
+  document.getElementById(id)?.classList.add('show');
+}
+
+// API
+async function api(path, method = 'GET', body = null) {
+  try {
+    const opts = {method, headers: {'Content-Type': 'application/json'}};
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(API + path, opts);
+    return await r.json();
+  } catch (e) { return {error: e.message}; }
+}
+
+// DASHBOARD
+async function loadDash() {
+  const d = await api('/stats');
+  if (d.error) return;
+  const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  set('s-users', (d.users||0).toLocaleString('fa-IR'));
+  set('s-orders', (d.orders||0).toLocaleString('fa-IR'));
+  set('s-rev', (d.revenue_today||0).toLocaleString('fa-IR'));
+  set('s-active', (d.active_services||0).toLocaleString('fa-IR'));
+  set('s-pending', (d.pending_orders||0) + ' در انتظار');
+  set('s-users-d', '▲ ' + (d.new_today||0) + ' امروز');
+  set('s-orders-d', (d.orders_today||0) + ' امروز');
+  // chart
+  const chart = document.getElementById('weekly-chart');
+  if (chart && d.weekly) {
+    const max = Math.max(...d.weekly, 1);
+    chart.innerHTML = d.weekly.map((v,i) =>
+      `<div class="chart-bar${i===d.weekly.length-1?' active':''}" style="height:${Math.max(8,(v/max*100))}%"></div>`
+    ).join('');
+  }
+  // pending orders
+  if (d.pending_list) {
+    const el = document.getElementById('pending-orders-card');
+    if (el && d.pending_list.length) {
+      el.innerHTML = d.pending_list.slice(0,5).map(o =>
+        `<div class="list-item">
+          <div class="list-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">📦</div>
+          <div class="list-body">
+            <div class="list-title">${o.user_id} — ${(o.amount||0).toLocaleString('fa-IR')} ت</div>
+            <div class="list-meta">${o.plan||''}</div>
+          </div>
+          <button onclick="confirmOrder(${o.id})" style="background:rgba(34,197,94,.15);color:#22c55e;border:none;padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer">تأیید</button>
+        </div>`
+      ).join('');
+    } else if (el) {
+      el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">✅ هیچ سفارش در انتظاری وجود ندارد</div>';
+    }
+  }
+}
+
+// USERS
+let userFilter = 'all', userQuery = '';
+async function loadUsers(filter, q) {
+  if (filter !== undefined) userFilter = filter;
+  if (q !== undefined) userQuery = q;
+  const d = await api(`/users?filter=${userFilter}&q=${encodeURIComponent(userQuery)}`);
+  const el = document.getElementById('users-list');
+  if (!el) return;
+  const users = d.users || [];
+  if (!users.length) { el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px">کاربری یافت نشد</div>'; return; }
+  el.innerHTML = users.map(u => `
+    <div class="user-card" onclick="openUser(${u.id})">
+      <div class="user-ava">${u.name ? u.name[0] : '👤'}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name || 'بدون نام'} ${u.username ? '@'+u.username : ''}</div>
+        <div class="user-meta">ID: ${u.id} | کیف: ${(u.wallet||0).toLocaleString('fa-IR')} ت</div>
+        <div class="user-badge">
+          ${u.has_vip ? '<span class="pill gold">⭐ VIP</span>' : ''}
+          ${u.is_blocked ? '<span class="pill red">🔴 بلاک</span>' : '<span class="pill green">✅ فعال</span>'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function filterUsers(f) { loadUsers(f, userQuery); }
+function searchUsers(q) { loadUsers(userFilter, q); }
+function openUser(uid) { window.location.href = `tg://resolve?domain=none&start=admin_user_${uid}`; }
+
+// PAYMENTS
+async function loadPayments() {
+  const d = await api('/payment_settings');
+  if (d.error) return;
+  if (d.card) {
+    document.getElementById('pm-card-toggle').checked = d.card.enabled;
+    document.getElementById('pm-card-meta').textContent = d.card.card_number ?
+      '****' + d.card.card_number.slice(-4) + ' — ' + (d.card.bank_name||'') : 'تنظیم نشده';
+    document.getElementById('pm-receipt').checked = d.card.receipt_required;
+    document.getElementById('pm-auto-confirm').checked = d.card.auto_confirm;
+  }
+  if (d.wallet) {
+    document.getElementById('pm-wallet-toggle').checked = d.wallet.enabled;
+    document.getElementById('pm-wallet-min').textContent = (d.wallet.min_charge||10000).toLocaleString('fa-IR') + ' تومان';
+  }
+  if (d.uniquepay) {
+    document.getElementById('pm-up-toggle').checked = d.uniquepay.enabled;
+    document.getElementById('up-tglink').checked = d.uniquepay.use_telegram_link;
+    document.getElementById('up-wl').checked = d.uniquepay.show_card_white_label;
+    document.getElementById('up-auto').checked = d.uniquepay.auto_confirm;
+  }
+  if (d.paygo) {
+    document.getElementById('pm-paygo-toggle').checked = d.paygo.enabled;
+    document.getElementById('paygo-gb').textContent = (d.paygo.price_per_gb||5000).toLocaleString('fa-IR') + ' تومان';
+  }
+  cryptos = d.cryptos || [];
+  renderCryptos();
+}
+
+function renderCryptos() {
+  const en = cryptos.filter(c => c.enabled).length;
+  document.getElementById('crypto-meta').textContent = en + ' ارز فعال';
+  document.getElementById('crypto-list').innerHTML = cryptos.map((c,i) => `
+    <div class="crypto-item">
+      <div class="crypto-emoji">${c.emoji||'💰'}</div>
+      <div class="crypto-body">
+        <div class="crypto-name">${c.symbol} — ${c.name}</div>
+        <div class="crypto-network">${c.network}</div>
+      </div>
+      <label class="toggle" style="flex-shrink:0">
+        <input type="checkbox" ${c.enabled?'checked':''} onchange="toggleCrypto('${c.symbol}',this.checked)">
+        <div class="toggle-slider"></div>
+      </label>
+      <button onclick="deleteCrypto('${c.symbol}')" style="background:rgba(239,68,68,.1);color:#ef4444;border:none;padding:6px;border-radius:8px;cursor:pointer;margin-right:4px">🗑</button>
+    </div>
+  `).join('');
+}
+
+async function togglePM(method, enabled) {
+  await api('/payment_toggle', 'POST', {method, enabled});
+  toast(enabled ? '✅ فعال شد' : '❌ غیرفعال شد');
+}
+async function toggleCrypto(symbol, enabled) {
+  await api('/crypto_toggle', 'POST', {symbol, enabled});
+  toast(enabled ? '✅ ' + symbol + ' فعال' : '❌ ' + symbol + ' غیرفعال');
+}
+async function deleteCrypto(symbol) {
+  if (!confirm('حذف ' + symbol + '؟')) return;
+  await api('/crypto_delete', 'POST', {symbol});
+  toast('🗑 ' + symbol + ' حذف شد');
+  await loadPayments();
+}
+
+function openAddCrypto() { openModal('modal-crypto'); }
+async function addCrypto() {
+  const sym = document.getElementById('nc-symbol').value.trim().toUpperCase();
+  const name = document.getElementById('nc-name').value.trim();
+  const network = document.getElementById('nc-network').value.trim();
+  const emoji = document.getElementById('nc-emoji').value.trim() || '💰';
+  const wallet = document.getElementById('nc-wallet').value.trim();
+  if (!sym || !name || !network) { toast('⚠️ فیلدهای اجباری را پر کنید'); return; }
+  await api('/crypto_add', 'POST', {symbol:sym, name, network, emoji, wallet});
+  closeModal('modal-crypto');
+  toast('✅ ' + sym + ' اضافه شد');
+  await loadPayments();
+}
+
+async function testUniquePay() {
+  toast('⏳ در حال تست...');
+  const d = await api('/test_uniquepay', 'POST');
+  if (d.ok) toast('✅ اتصال برقرار است! refId: ' + (d.ref_id||''), 4000);
+  else toast('❌ خطا: ' + (d.error||'ناشناخته'), 4000);
+}
+
+// FIELD EDIT
+function editField(key, label) {
+  _editKey = key;
+  document.getElementById('modal-field-title').textContent = label;
+  document.getElementById('modal-field-label').textContent = 'مقدار جدید:';
+  openModal('modal-field');
+}
+async function saveField() {
+  const val = document.getElementById('modal-field-input').value.trim();
+  await api('/update_setting', 'POST', {key: _editKey, value: val});
+  closeModal('modal-field');
+  toast('✅ ذخیره شد');
+  if (currentPage === 'payments') loadPayments();
+  if (currentPage === 'settings') loadSettings();
+}
+
+// SETTINGS
+async function loadSettings() {
+  const d = await api('/settings');
+  if (d.error) return;
+  const s = d.settings || {};
+  const setChk = (id, val) => { const e = document.getElementById(id); if(e) e.checked = val == '1' || val === true; };
+  setChk('s-maintenance', s.maintenance_mode);
+  setChk('s-reg', s.registration_open);
+  setChk('s-ref', s.referral_enabled);
+  setChk('s-auto', s.auto_accept_orders);
+  setChk('s-force', s.force_join_enabled);
+  setChk('s-test', s.test_service_enabled);
+  const max = document.getElementById('s-test-max');
+  if (max) max.textContent = (s.test_max_per_user||1) + ' تست';
+}
+async function updateSetting(key, value) {
+  await api('/update_setting', 'POST', {key, value: value ? '1' : '0'});
+  toast('✅ ذخیره شد');
+}
+
+// PANELS
+async function loadPanels() {
+  const d = await api('/panels');
+  const el = document.getElementById('panels-list');
+  if (!el) return;
+  const panels = d.panels || [];
+  if (!panels.length) { el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px">پنلی تعریف نشده</div>'; return; }
+  el.innerHTML = panels.map(p => `
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-header">
+        <div><div class="card-title">${p.name}</div><div class="card-subtitle">${p.panel_type} | ${p.base_url}</div></div>
+        <label class="toggle"><input type="checkbox" ${p.enabled?'checked':''} onchange="togglePanel(${p.id},this.checked)"><div class="toggle-slider"></div></label>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" style="font-size:11px;padding:7px" onclick="testPanel(${p.id})">🔧 تست</button>
+        <button class="btn btn-danger" style="font-size:11px;padding:7px" onclick="deletePanel(${p.id})">🗑 حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+async function togglePanel(id, enabled) {
+  await api('/panel_toggle', 'POST', {id, enabled});
+  toast(enabled ? '✅ پنل فعال' : '❌ پنل غیرفعال');
+}
+async function testPanel(id) {
+  toast('⏳ در حال تست...');
+  const d = await api('/panel_test', 'POST', {id});
+  toast(d.ok ? '✅ پنل آنلاین است' : '❌ اتصال ناموفق', 3000);
+}
+async function deletePanel(id) {
+  if (!confirm('حذف پنل؟')) return;
+  await api('/panel_delete', 'POST', {id});
+  toast('🗑 پنل حذف شد');
+  loadPanels();
+}
+function openAddPanel() {
+  window.Telegram?.WebApp?.sendData(JSON.stringify({action:'open_add_panel'}));
+  toast('در ربات پنل اضافه کنید: /admin → پنل‌ها');
+}
+
+async function confirmOrder(id) {
+  await api('/confirm_order', 'POST', {id});
+  toast('✅ سفارش تأیید شد');
+  loadDash();
+}
+function sendBroadcast() {
+  window.Telegram?.WebApp?.sendData(JSON.stringify({action:'broadcast'}));
+  toast('از ربات: /admin → همگانی');
+}
+
+// INIT
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    Telegram.WebApp.setHeaderColor('#0a0a0f');
+    Telegram.WebApp.setBackgroundColor('#0a0a0f');
+  }
+  loadDash();
+  setInterval(loadDash, 60000);
+});
+</script>
+</body>
+</html>
